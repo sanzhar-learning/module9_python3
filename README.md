@@ -1,0 +1,1 @@
+this is homework of Sanzhar Tashbenbetov for Intro to Programming 3 - Python
