@@ -28,23 +28,14 @@ from typing import Any
 
 
 class Countdown:
-    """Problem 1. Countdown iterator.
-
-    Build an iterator class that starts at `n` and yields down to `0` inclusive.
-
-    Example:
-    >>> list(Countdown(3))
-    [3, 2, 1, 0]
-    """
-
     def __init__(self, n: int) -> None:
-        raise NotImplementedError
+        self.start = n
 
     def __iter__(self) -> Iterator[int]:
-        raise NotImplementedError
-
-    def __next__(self) -> int:
-        raise NotImplementedError
+        current = self.start
+        while current >= 0:
+            yield current
+            current -= 1
 
 
 class StepIterator:
@@ -62,13 +53,21 @@ class StepIterator:
     """
 
     def __init__(self, values: list[Any], step: int = 2) -> None:
-        raise NotImplementedError
+        if step <= 0:
+            raise ValueError()
+        self.values = values
+        self.step = step
+        self.index = 0
 
     def __iter__(self) -> Iterator[Any]:
-        raise NotImplementedError
+        return self
 
     def __next__(self) -> Any:
-        raise NotImplementedError
+        if self.index >= len(self.values):
+            raise StopIteration
+        value = self.values[self.index]
+        self.index += self.step
+        return value
 
 
 class UniqueConsecutiveIterator:
@@ -82,13 +81,19 @@ class UniqueConsecutiveIterator:
     """
 
     def __init__(self, values: list[Any]) -> None:
-        raise NotImplementedError
+        self.values = values
+        self.index = 0
 
     def __iter__(self) -> Iterator[Any]:
-        raise NotImplementedError
+        return self
 
     def __next__(self) -> Any:
-        raise NotImplementedError
+        while self.index < len(self.values):
+            value = self.values[self.index]
+            self.index += 1
+            if self.index == 1 or value != self.values[self.index - 2]:
+                return value
+        raise StopIteration
 
 
 class CircularIterator:
@@ -103,13 +108,23 @@ class CircularIterator:
     """
 
     def __init__(self, sequence: Sequence[Any], k: int) -> None:
-        raise NotImplementedError
+        if not sequence or k < 0:
+            raise ValueError()
+        self.sequence = sequence
+        self.k = k
+        self.index = 0
+        self.count = 0
 
     def __iter__(self) -> Iterator[Any]:
-        raise NotImplementedError
+        return self
 
     def __next__(self) -> Any:
-        raise NotImplementedError
+        if self.count >= self.k:
+            raise StopIteration
+        value = self.sequence[self.index]
+        self.index = (self.index + 1) % len(self.sequence)
+        self.count += 1
+        return value
 
 
 class FlattenIterator:
@@ -143,7 +158,14 @@ def read_words(filename: str) -> Iterator[str]:
     >>> list(read_words("sample.txt"))
     ['one', 'two', 'three']
     """
-    raise NotImplementedError
+
+    def word_generator() -> Iterator[str]:
+        with open(filename) as f:
+            for line in f:
+                for word in line.split():
+                    yield word
+
+    return word_generator()
 
 
 def batch(iterable: Iterable[Any], size: int) -> Iterator[list[Any]]:
@@ -156,7 +178,16 @@ def batch(iterable: Iterable[Any], size: int) -> Iterator[list[Any]]:
     >>> list(batch([1, 2, 3, 4, 5, 6, 7], 3))
     [[1, 2, 3], [4, 5, 6], [7]]
     """
-    raise NotImplementedError
+    if size <= 0:
+        raise ValueError()
+    batch = []
+    for it in iterable:
+        batch.append(it)
+        if len(batch) == size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
 
 
 def flatten(data: list[Any]) -> Iterator[Any]:

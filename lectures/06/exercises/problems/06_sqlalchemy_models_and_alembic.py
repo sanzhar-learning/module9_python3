@@ -35,7 +35,6 @@ Steps:
 
 
 def main() -> None:
-    # TODO: execute the steps in the docstring.
     print("Follow the migration workflow from the docstring.")
 
 

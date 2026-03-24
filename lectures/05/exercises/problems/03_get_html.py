@@ -16,8 +16,22 @@ URL = "https://example.com"
 
 
 def main() -> None:
-    # TODO: implement GET request and print HTML response
-    pass
+    try:
+        response = requests.get(URL, timeout=5)
+        response.raise_for_status()
+
+        print(f"Status Code: {response.status_code}")
+        content_type = response.headers.get("Content-Type", "")
+        print(f"Content-Type: {content_type}")
+        print(f"HTML Body:\n{response.text}")
+
+        if "text/html" in content_type:
+            print("Content type is HTML.")
+        else:
+            print("Content type is not HTML.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
 
 
 if __name__ == "__main__":

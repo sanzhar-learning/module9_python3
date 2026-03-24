@@ -18,10 +18,33 @@ URL = "https://jsonplaceholder.typicode.com/posts"
 
 
 def main() -> None:
-    # TODO: create payload dict
-    # TODO: send POST request with json=payload
-    # TODO: print response details
-    pass
+    payload = {
+        "title": "My Post Title",
+        "body": "This is the body of my post.",
+        "userId": 123,
+    }
+
+    try:
+        response = requests.post(URL, json=payload, timeout=5)
+        response.raise_for_status()
+
+        print(f"Status Code: {response.status_code}")
+        print(f"Raw Body: {response.text}")
+
+        json_response = response.json()
+        print(f"Parsed JSON: {json_response}")
+
+        assert json_response.get("title") == payload["title"]
+        assert json_response.get("body") == payload["body"]
+        assert json_response.get("userId") == payload["userId"]
+        assert "id" in json_response
+
+        print("Response includes sent data and an id.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+    except AssertionError:
+        print("Response does not include expected data.")
 
 
 if __name__ == "__main__":

@@ -15,24 +15,41 @@ Starter:
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from db_models import Assignment, Student
+from db_models import Assignment, Base, Student
 
-DB_URL = "sqlite:///school.db"
+import os
+
+_db_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "school.db")
+DB_URL = f"sqlite:///{os.path.abspath(_db_path)}"
 
 
 def main() -> None:
     engine = create_engine(DB_URL, echo=False)
 
     with Session(engine) as session:
-        # TODO 1: add an assignment for an existing student
-
-        # TODO 2: read all students
-
-        # TODO 3: read filtered + sorted students
-
-        # TODO 4: read assignments with student data
-
+        new_assignment = Assignment(title="SQL Basics", score=95, student_id=2)
+        session.add(new_assignment)
         session.commit()
+        print(f"Created assignment: {new_assignment.title} (id={new_assignment.id})")
+
+        print("All Students:")
+        students = session.execute(select(Student)).scalars().all()
+        for s in students:
+            print(f"  {s.id}: {s.name}, age={s.age}, email={s.email}, track={s.track}")
+
+        print("Students with age >= 22 (sorted by age desc):")
+        stmt = select(Student).where(Student.age >= 22).order_by(Student.age.desc())
+        filtered = session.execute(stmt).scalars().all()
+        for s in filtered:
+            print(f"  {s.id}: {s.name}, age={s.age}")
+
+        print("Assignments with Student Names:")
+        stmt = select(Assignment, Student.name).join(Student)
+        rows = session.execute(stmt).all()
+        for assignment, student_name in rows:
+            print(
+                f"  {assignment.title} (score={assignment.score}) -> student: {student_name}"
+            )
 
 
 if __name__ == "__main__":
