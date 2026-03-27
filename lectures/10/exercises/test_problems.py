@@ -43,7 +43,9 @@ class Lecture10ConcurrencyTest(unittest.TestCase):
             problems.threadpool_sleep_map(delays, max_workers=0)
 
     def test_processpool_square_map(self) -> None:
-        self.assertEqual(problems.processpool_square_map([1, 2, 3, 4], max_workers=2), [1, 4, 9, 16])
+        self.assertEqual(
+            problems.processpool_square_map([1, 2, 3, 4], max_workers=2), [1, 4, 9, 16]
+        )
         with self.assertRaises(ValueError):
             problems.processpool_square_map([1], max_workers=0)
 

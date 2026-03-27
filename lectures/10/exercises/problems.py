@@ -35,7 +35,28 @@ def locked_counter_total(num_threads: int, increments_per_thread: int) -> int:
     Expected result:
         num_threads * increments_per_thread
     """
-    raise NotImplementedError
+    import threading
+
+    class ThreadSafeCounter:
+        def __init__(self) -> None:
+            self.value = 0
+            self.lock = threading.Lock()
+
+        def increment(self) -> None:
+            with self.lock:
+                self.value += 1
+
+    counter = ThreadSafeCounter()
+    threads = []
+    for _ in range(num_threads):
+        thread = threading.Thread(
+            target=lambda: [counter.increment() for _ in range(increments_per_thread)]
+        )
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+    return counter.value
 
 
 def threaded_square_map(values: list[int]) -> list[int]:
@@ -51,7 +72,19 @@ def threaded_square_map(values: list[int]) -> list[int]:
     Example:
         [2, -3, 4] -> [4, 9, 16]
     """
-    raise NotImplementedError
+    import threading
+
+    results = [None] * len(values)
+    threads = []
+    for i, value in enumerate(values):
+        thread = threading.Thread(
+            target=lambda i=i, value=value: results.__setitem__(i, value**2)
+        )
+        threads.append(thread)
+        thread.start()
+    for thread in threads:
+        thread.join()
+    return results
 
 
 def threadpool_sleep_map(delays: list[float], max_workers: int = 4) -> list[float]:
@@ -63,7 +96,13 @@ def threadpool_sleep_map(delays: list[float], max_workers: int = 4) -> list[floa
         - Preserve input order in returned list (for example via `executor.map`).
         - Raise `ValueError` if `max_workers < 1`.
     """
-    raise NotImplementedError
+    from concurrent.futures import ThreadPoolExecutor
+
+    if max_workers < 1:
+        raise ValueError("max_workers must be at least 1")
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        results = list(executor.map(simulated_long_fetch, delays))
+    return results
 
 
 def processpool_square_map(values: list[int], max_workers: int = 2) -> list[int]:
